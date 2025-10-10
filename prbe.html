@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>User Profile</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  :root{--primary:#3a86ff;--bg:#f4f6f9;--card:#fff;--muted:#777;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Inter,system-ui,Roboto,Arial;background:var(--bg);color:#222;padding-bottom:100px;}
+  .wrap{max-width:460px;margin:20px auto;background:var(--card);border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.08);overflow:hidden;}
+  .profile-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #eee;}
+  .profile-header h1{font-size:18px;}
+  .profile-header .action-btn{background:none;border:0;cursor:pointer;font-size:16px;color:var(--muted);}
+  .user-card{background:var(--primary);color:#fff;padding:22px;text-align:center;position:relative;}
+  .avatar{width:88px;height:88px;border-radius:50%;background:#fff;margin:0 auto 10px;overflow:hidden;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--primary);font-size:36px}
+  .edit-upi{position:absolute;right:14px;top:14px;background:#ffd54f;border-radius:18px;padding:6px 10px;font-weight:600;color:#222;border:2px solid var(--primary)}
+  .user-card h2{margin-top:6px;margin-bottom:4px;font-size:20px}
+  .user-card p{margin:2px 0;font-size:13px;opacity:.9}
+  main{padding:16px;}
+  .section{background:var(--card);padding:12px;border-radius:10px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .input{display:flex;gap:8px}
+  .input input{flex:1;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px}
+  .btn{background:#ffd54f;border:0;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer}
+  .stats{display:flex;justify-content:space-around;margin-top:12px}
+  .stat{text-align:center}
+  .stat .v{font-weight:700;font-size:16px}
+  .ref-row{display:flex;gap:8px;align-items:center}
+  .ref-code{background:#eef6ff;padding:8px 12px;border-radius:8px;color:var(--primary);font-weight:700}
+  .small{font-size:12px;color:var(--muted)}
+  footer.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;max-width:460px;width:96%;background:#fff;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.08);display:flex;justify-content:space-around;padding:10px}
+  .nav-item{text-align:center;color:#777;text-decoration:none}
+  .nav-item.active{color:var(--primary);font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="profile-header">
+    <h1>Profile</h1>
+    <button id="logoutBtn" class="action-btn" title="Logout" style="display:none"><i class="fas fa-sign-out-alt"></i></button>
+  </header>
+
+  <section class="user-card">
+    <div class="avatar" id="avatar">U</div>
+    <div class="edit-upi" id="editUpiBtn" style="display:none">Edit UPI</div>
+    <h2 id="nameDisplay">Guest User</h2>
+    <p id="emailDisplay" class="small">Please login on home page</p>
+    <p id="joinedDisplay" class="small"></p>
+
+    <div class="stats" style="margin-top:14px">
+      <div class="stat"><div class="v" id="points">0</div><div class="small">Points</div></div>
+      <div class="stat"><div class="v" id="spins">0/5</div><div class="small">Spins</div></div>
+      <div class="stat"><div class="v" id="balance">₹0.00</div><div class="small">Wallet</div></div>
+    </div>
+  </section>
+
+  <main>
+    <div class="section">
+      <label>UPI ID</label>
+      <div class="input">
+        <input id="upiInput" placeholder="Enter UPI ID">
+        <button id="saveUpi" class="btn" style="display:none">Save</button>
+      </div>
+      <p class="small" id="upiSavedInfo"></p>
+    </div>
+
+    <div class="section">
+      <label>Your referral code</label>
+      <div class="ref-row">
+        <div class="ref-code" id="refCode">—</div>
+        <button id="copyRef" class="btn" style="padding:8px 10px">Copy</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer class="bottom-nav">
+  <a href="spin.html" class="nav-item"><i class="fas fa-sync-alt"></i><div>Spin</div></a>
+  <a href="wallet .html" class="nav-item"><i class="fas fa-wallet"></i><div>Wallet</div></a>
+  <a href="prbe.html" class="nav-item active"><i class="fas fa-user"></i><div>Profile</div></a>
+</footer>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDllI-7XaSEX9Akcjz3hzH3eWtC_xOo0vE",
+    authDomain: "spin-to-earn-ba587.firebaseapp.com",
+    projectId: "spin-to-earn-ba587",
+    storageBucket: "spin-to-earn-ba587.firebasestorage.app",
+    messagingSenderId: "508392305853",
+    appId: "1:508392305853:web:404509d298fc8ee25e73d4"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const nameDisplay = document.getElementById('nameDisplay');
+  const emailDisplay = document.getElementById('emailDisplay');
+  const joinedDisplay = document.getElementById('joinedDisplay');
+  const avatar = document.getElementById('avatar');
+  const pointsEl = document.getElementById('points');
+  const spinsEl = document.getElementById('spins');
+  const balanceEl = document.getElementById('balance');
+  const upiInput = document.getElementById('upiInput');
+  const saveUpi = document.getElementById('saveUpi');
+  const upiSavedInfo = document.getElementById('upiSavedInfo');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const editUpiBtn = document.getElementById('editUpiBtn');
+  const copyRef = document.getElementById('copyRef');
+  const refCode = document.getElementById('refCode');
+
+  let userId = null;
+
+  onAuthStateChanged(auth, async (user)=>{
+    if(user){
+      userId = user.uid;
+      logoutBtn.style.display = "inline-block";
+
+      const snap = await getDoc(doc(db,"users",userId));
+      const data = snap.exists()? snap.data() : {};
+
+      nameDisplay.textContent = data.name || user.displayName || "User";
+      emailDisplay.textContent = user.email || data.email || "";
+      joinedDisplay.textContent = "Joined: " + (data.joinedAt?.toDate? data.joinedAt.toDate().toDateString() : new Date().toDateString());
+      pointsEl.textContent = data.points || 0;
+      spinsEl.textContent = (data.spinsToday || 0) + "/5";
+      balanceEl.textContent = "₹" + ((data.points || 0)/1000).toFixed(2);
+
+      if(user.photoURL){
+        avatar.innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;border-radius:50%">`;
+      }
+
+      // UPI
+      if(data.upi){
+        upiInput.value = data.upi;
+        upiSavedInfo.textContent = "Saved: "+data.upi;
+        editUpiBtn.style.display = "inline-block";
+      }else{
+        saveUpi.style.display = "inline-block";
+      }
+
+      // Referral code
+      refCode.textContent = user.uid.slice(0,6).toUpperCase();
+    }
+    else{
+      nameDisplay.textContent = "Guest User";
+      emailDisplay.textContent = "Please login on home page";
+      logoutBtn.style.display = "none";
+    }
+  });
+
+  logoutBtn.addEventListener("click",()=> signOut(auth));
+
+  editUpiBtn.addEventListener("click",()=>{
+    saveUpi.style.display="inline-block";
+    editUpiBtn.style.display="none";
+  });
+
+  saveUpi.addEventListener("click",async ()=>{
+    if(!userId){alert("Login first");return;}
+    const val=upiInput.value.trim();
+    if(!val){alert("Enter UPI");return;}
+    await updateDoc(doc(db,"users",userId),{upi:val});
+    upiSavedInfo.textContent="Saved: "+val;
+    saveUpi.style.display="none";
+    editUpiBtn.style.display="inline-block";
+  });
+
+  copyRef.addEventListener("click",()=>{
+    navigator.clipboard.writeText(refCode.textContent);
+    alert("Referral Code Copied!");
+  });
+</script>
+</body>
+</html>
