@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spin to Earn - Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(180deg, #0072ff, #00c6ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+
+    .login-container {
+      text-align: center;
+      width: 90%;
+      max-width: 350px;
+    }
+
+    .logo {
+      font-size: 60px;
+      background: #fff;
+      color: #0072ff;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: auto;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+      font-size: 28px;
+      margin: 10px 0;
+    }
+
+    .subtitle {
+      background: rgba(255,255,255,0.15);
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .features {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 30px;
+      font-size: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .google {
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 25px;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .google img {
+      width: 20px;
+    }
+
+    .google:hover {
+      background: #f5f5f5;
+    }
+
+    .terms {
+      font-size: 12px;
+      margin-top: 15px;
+      color: #eee;
+    }
+
+    .terms a {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .logo {
+        font-size: 45px;
+        width: 70px;
+        height: 70px;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      .subtitle {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">💲</div>
+    <h1>Spin to Earn</h1>
+    <p class="subtitle">Spin the wheel and earn real money rewards daily</p>
+
+    <div class="features">
+      <span>🔒 Safe</span>
+      <span>⚡ Fast</span>
+      <span>🏆 Rewards</span>
+    </div>
+
+    <button id="googleBtn" class="google"> 
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G"> 
+      Sign in with Google
+    </button>
+
+    <p class="terms">By signing in, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // Firebase Config (aapka diya hua)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDllI-7XaSEX9Akcjz3hzH3eWtC_xOo0vE",
+      authDomain: "spin-to-earn-ba587.firebaseapp.com",
+      projectId: "spin-to-earn-ba587",
+      storageBucket: "spin-to-earn-ba587.firebasestorage.app",
+      messagingSenderId: "508392305853",
+      appId: "1:508392305853:web:404509d298fc8ee25e73d4"
+    };
+
+    // Init Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Google Login
+    const googleBtn = document.getElementById("googleBtn");
+    googleBtn.addEventListener("click", async () => {
+      try {
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        alert("✅ Welcome " + user.displayName);
+        // Redirect to game page
+        window.location.href = "spin.html";
+      } catch (err) {
+        alert("❌ " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
