@@ -30,7 +30,7 @@ main{flex:1;overflow-y:auto;padding:15px;display:flex;flex-direction:column;gap:
 .download-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;cursor:pointer;font-weight:600;color:#333;}
 .download-btn i{color:#03A9F4;}
 .history-section{background:#fff;padding:15px;border-radius:12px;}
-.history-item{display:flex;align-items:center;gap:15px;padding:10px 0;border-bottom:1px solid #eee;}
+.history-item{display:flex;align-items:center;gap:15px;padding:10px 0;border-bottom:1px solid #eee;cursor:pointer;}
 .status{font-size:0.75rem;padding:3px 8px;border-radius:10px;font-weight:500;}
 .status.pending{background:#fff8e1;color:#fbc02d;}
 .status.completed{background:#e8f5e9;color:#2e7d32;}
@@ -43,6 +43,43 @@ footer nav{display:flex;justify-content:space-around;padding:10px 0;}
 .amount-grid{grid-template-columns:repeat(2,1fr);}
 .withdraw-now-btn{font-size:0.9rem;padding:12px;}
 .nav-item span{font-size:0.8rem;}
+}
+
+/* ✅ Popup Details Modal */
+#detailsPopup{
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.5);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+#detailsPopup .popup-content{
+  background:#fff;
+  width:90%;
+  max-width:350px;
+  border-radius:12px;
+  padding:20px;
+  text-align:left;
+  position:relative;
+}
+#detailsPopup .popup-content h3{
+  text-align:center;
+  margin-bottom:15px;
+}
+#detailsPopup .popup-content p{
+  margin:6px 0;
+  font-size:0.9rem;
+}
+#detailsPopup .close-btn{
+  position:absolute;
+  top:10px;right:10px;
+  background:none;
+  border:none;
+  font-size:1.2rem;
+  cursor:pointer;
+  color:#333;
 }
 </style>
 </head>
@@ -66,7 +103,6 @@ footer nav{display:flex;justify-content:space-around;padding:10px 0;}
         <button class="amount-btn" data-points="20000" data-rupees="20">₹20</button>
         <button class="amount-btn" data-points="50000" data-rupees="50">₹50</button>
         <button class="amount-btn" data-points="100000" data-rupees="100">₹100</button>
-        <!-- ✅ Custom payment input -->
         <div class="custom-input">
           <input type="number" id="customAmount" placeholder="Custom ₹" min="1">
         </div>
@@ -92,6 +128,15 @@ footer nav{display:flex;justify-content:space-around;padding:10px 0;}
       <a href="prbe.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Profile</span></a>
     </nav>
   </footer>
+</div>
+
+<!-- ✅ Details Popup -->
+<div id="detailsPopup">
+  <div class="popup-content">
+    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+    <h3>Withdrawal Details</h3>
+    <div id="detailsBody"></div>
+  </div>
 </div>
 
 <script type="module">
@@ -144,7 +189,7 @@ document.querySelectorAll(".amount-btn").forEach(btn=>{
 document.getElementById("customAmount").addEventListener("input",e=>{
   document.querySelectorAll(".amount-btn").forEach(b=>b.classList.remove("selected"));
   const customValue=parseFloat(e.target.value)||0;
-  selectedPoints=customValue*1000; // ₹1 = 1000 points
+  selectedPoints=customValue*1000;
 });
 
 document.querySelector(".withdraw-now-btn").addEventListener("click",async()=>{
@@ -175,18 +220,39 @@ function listenWithdrawals(){
       const date=d.date?.toDate?d.date.toDate():new Date(d.date);
       const icon=d.status==="COMPLETED"?"fa-wallet":(d.status==="FAILED"?"fa-triangle-exclamation":"fa-clock");
       const color=d.status==="COMPLETED"?"#2e7d32":(d.status==="FAILED"?"#c62828":"#fbc02d");
-      list.innerHTML+=`
-      <div class="history-item">
+
+      const item=document.createElement("div");
+      item.classList.add("history-item");
+      item.innerHTML=`
         <i class="fa-solid ${icon}" style="color:${color};font-size:1.2rem;"></i>
         <div>
           <h4>₹${d.amount} <span class="status ${d.status.toLowerCase()}">${d.status}</span></h4>
           <p>To: ${d.upi}</p>
           <small>${date.toLocaleString()}</small>
-        </div>
-      </div>`;
+        </div>`;
+      item.addEventListener("click",()=>{
+        showDetailsPopup(d);
+      });
+      list.appendChild(item);
     });
   });
 }
+
+function showDetailsPopup(d){
+  const popup=document.getElementById("detailsPopup");
+  const body=document.getElementById("detailsBody");
+  const date=d.date?.toDate?d.date.toDate():new Date(d.date);
+  body.innerHTML=`
+    <p><strong>Amount:</strong> ₹${d.amount}</p>
+    <p><strong>Points Used:</strong> ${d.points}</p>
+    <p><strong>UPI ID:</strong> ${d.upi}</p>
+    <p><strong>Status:</strong> ${d.status}</p>
+    <p><strong>Date:</strong> ${date.toLocaleString()}</p>`;
+  popup.style.display="flex";
+}
+document.querySelector("#detailsPopup .close-btn").addEventListener("click",()=>{
+  document.getElementById("detailsPopup").style.display="none";
+});
 
 document.getElementById("downloadTxBtn").addEventListener("click",async()=>{
   if(!userId)return alert("Please sign in");
@@ -209,5 +275,5 @@ document.getElementById("downloadTxBtn").addEventListener("click",async()=>{
 });
 </script>
 </body>
-</html>
-                                                                                                 
+  </html>
+  
