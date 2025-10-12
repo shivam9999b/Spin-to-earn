@@ -13,7 +13,6 @@
       flex-direction: column;
       height: 100vh;
     }
-
     header {
       background: #fff;
       padding: 15px;
@@ -22,13 +21,11 @@
       font-size: 20px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-
     .stats {
       display: flex;
       justify-content: space-around;
       margin: 15px;
     }
-
     .card {
       flex: 1;
       margin: 5px;
@@ -38,12 +35,10 @@
       padding: 20px;
       text-align: center;
     }
-
     .card h2 {
       margin: 5px 0;
       font-size: 22px;
     }
-
     .wheel-container {
       background: #fff;
       margin: 15px;
@@ -57,14 +52,12 @@
       align-items: center;
       flex-direction: column;
     }
-
     #wheel {
       width: 280px;
       height: 280px;
       border-radius: 50%;
       border: 5px solid #ddd;
     }
-
     #pointer {
       position: absolute;
       width: 0;
@@ -76,7 +69,6 @@
       left: calc(50% - 15px);
       z-index: 10;
     }
-
     #spinBtn {
       margin-top: 20px;
       width: 90%;
@@ -90,11 +82,7 @@
       cursor: pointer;
       transition: 0.3s;
     }
-
-    #spinBtn:hover {
-      opacity: 0.9;
-    }
-
+    #spinBtn:hover { opacity: 0.9; }
     nav {
       background: #fff;
       display: flex;
@@ -105,7 +93,6 @@
       width: 100%;
       border-top: 1px solid #ddd;
     }
-
     nav a {
       text-align: center;
       font-size: 12px;
@@ -115,10 +102,64 @@
       flex-direction: column;
       align-items: center;
     }
-
     nav a.active {
       color: #0072ff;
       font-weight: bold;
+    }
+
+    /* 🎉 Popup Design (same as image) */
+    .popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+    .popup-content {
+      background: #fff;
+      border-radius: 20px;
+      padding: 25px;
+      text-align: center;
+      width: 85%;
+      max-width: 320px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+      animation: pop 0.4s ease;
+    }
+    @keyframes pop {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .popup-content h2 {
+      color: #0072ff;
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+    .trophy {
+      font-size: 40px;
+      color: #ffb300;
+      margin-bottom: 10px;
+    }
+    .popup-content p {
+      color: #555;
+      margin: 5px 0;
+    }
+    .highlight {
+      color: #ffb300;
+      font-weight: bold;
+    }
+    .popup-content button {
+      margin-top: 15px;
+      background: linear-gradient(to right, #ffcc00, #0072ff);
+      color: #fff;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -141,6 +182,17 @@
     <canvas id="wheel" width="280" height="280"></canvas>
     <div id="pointer"></div>
     <button id="spinBtn">🔄 SPIN NOW</button>
+  </div>
+
+  <!-- 🎉 POPUP -->
+  <div class="popup" id="popup">
+    <div class="popup-content">
+      <div class="trophy">🏆</div>
+      <h2>Congratulations!</h2>
+      <p>🎉 You won <span class="highlight" id="popupPoints">10</span> points!</p>
+      <p>Keep spinning to earn more rewards!</p>
+      <button id="closePopup">AWESOME!</button>
+    </div>
   </div>
 
   <nav>
@@ -173,6 +225,9 @@
     const spinBtn = document.getElementById("spinBtn");
     const pointsEl = document.getElementById("points");
     const spinsEl = document.getElementById("spins");
+    const popup = document.getElementById("popup");
+    const popupPoints = document.getElementById("popupPoints");
+    const closePopup = document.getElementById("closePopup");
 
     const options = [10, 25, 50, 100, 20, 0];
     const arcSize = (2 * Math.PI) / options.length;
@@ -201,7 +256,6 @@
         ctx.restore();
       }
     }
-
     drawWheel();
 
     function updateUI() {
@@ -272,7 +326,6 @@
           let pointerAngle = (270 - angle + 360) % 360;
           let selectedIndex = Math.floor(pointerAngle / (360 / options.length));
           let selected = options[selectedIndex];
-          alert("🎉 You won: " + selected + " points!");
 
           userData.points += selected;
           userData.spinsToday += 1;
@@ -280,9 +333,17 @@
           updateUI();
           saveUserData();
           spinning = false;
+
+          // 🎉 Show popup
+          popupPoints.textContent = selected;
+          popup.style.display = "flex";
         }
       }
       animate();
+    });
+
+    closePopup.addEventListener("click", () => {
+      popup.style.display = "none";
     });
   </script>
 </body>
