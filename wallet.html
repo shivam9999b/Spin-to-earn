@@ -194,14 +194,18 @@ document.getElementById("customAmount").addEventListener("input",e=>{
 
 document.querySelector(".withdraw-now-btn").addEventListener("click",async()=>{
   const upi=document.getElementById("upiId").value.trim();
+  const rupees = selectedPoints / 1000;
+
   if(!upi)return alert("Enter UPI ID");
   if(selectedPoints<=0)return alert("Select or enter amount");
+  if(rupees < 20)return alert("Minimum withdrawal is ₹20");
   if(userData.points<selectedPoints)return alert("Insufficient points");
+
   userData.points-=selectedPoints;
   await updateDoc(doc(db,"users",userId),{points:userData.points});
   await addDoc(collection(db,"users",userId,"withdrawals"),{
     points:selectedPoints,
-    amount:(selectedPoints/1000),
+    amount:rupees,
     upi:upi,
     status:"PENDING",
     date:new Date()
@@ -230,9 +234,7 @@ function listenWithdrawals(){
           <p>To: ${d.upi}</p>
           <small>${date.toLocaleString()}</small>
         </div>`;
-      item.addEventListener("click",()=>{
-        showDetailsPopup(d);
-      });
+      item.addEventListener("click",()=>{showDetailsPopup(d);});
       list.appendChild(item);
     });
   });
@@ -250,9 +252,7 @@ function showDetailsPopup(d){
     <p><strong>Date:</strong> ${date.toLocaleString()}</p>`;
   popup.style.display="flex";
 }
-document.querySelector("#detailsPopup .close-btn").addEventListener("click",()=>{
-  document.getElementById("detailsPopup").style.display="none";
-});
+document.querySelector("#detailsPopup .close-btn").addEventListener("click",()=>{document.getElementById("detailsPopup").style.display="none";});
 
 document.getElementById("downloadTxBtn").addEventListener("click",async()=>{
   if(!userId)return alert("Please sign in");
