@@ -5,162 +5,27 @@
   <title>Spin & Win</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: #f8f9fb;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    header {
-      background: #fff;
-      padding: 15px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .stats {
-      display: flex;
-      justify-content: space-around;
-      margin: 15px;
-    }
-    .card {
-      flex: 1;
-      margin: 5px;
-      background: linear-gradient(135deg, #0072ff, #00c6ff);
-      color: #fff;
-      border-radius: 15px;
-      padding: 20px;
-      text-align: center;
-    }
-    .card h2 {
-      margin: 5px 0;
-      font-size: 22px;
-    }
-    .wheel-container {
-      background: #fff;
-      margin: 15px;
-      border-radius: 15px;
-      padding: 15px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-      text-align: center;
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
-    #wheel {
-      width: 280px;
-      height: 280px;
-      border-radius: 50%;
-      border: 5px solid #ddd;
-    }
-    #pointer {
-      position: absolute;
-      width: 0;
-      height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-top: 25px solid red;
-      top: calc(50% - 140px);
-      left: calc(50% - 15px);
-      z-index: 10;
-    }
-    #spinBtn {
-      margin-top: 20px;
-      width: 90%;
-      padding: 15px;
-      border: none;
-      border-radius: 30px;
-      font-size: 18px;
-      font-weight: bold;
-      background: linear-gradient(to right, #ffcc00, #0072ff);
-      color: #fff;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    #spinBtn:hover { opacity: 0.9; }
-    nav {
-      background: #fff;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      border-top: 1px solid #ddd;
-    }
-    nav a {
-      text-align: center;
-      font-size: 12px;
-      color: #444;
-      text-decoration: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    nav a.active {
-      color: #0072ff;
-      font-weight: bold;
-    }
-
-    /* 🎉 Popup Design (same as image) */
-    .popup {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
-    .popup-content {
-      background: #fff;
-      border-radius: 20px;
-      padding: 25px;
-      text-align: center;
-      width: 85%;
-      max-width: 320px;
-      box-shadow: 0 5px 25px rgba(0,0,0,0.15);
-      animation: pop 0.4s ease;
-    }
-    @keyframes pop {
-      from { transform: scale(0.5); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    .popup-content h2 {
-      color: #0072ff;
-      font-size: 22px;
-      margin-bottom: 10px;
-    }
-    .trophy {
-      font-size: 40px;
-      color: #ffb300;
-      margin-bottom: 10px;
-    }
-    .popup-content p {
-      color: #555;
-      margin: 5px 0;
-    }
-    .highlight {
-      color: #ffb300;
-      font-weight: bold;
-    }
-    .popup-content button {
-      margin-top: 15px;
-      background: linear-gradient(to right, #ffcc00, #0072ff);
-      color: #fff;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 30px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+    body{margin:0;font-family:'Poppins',sans-serif;background:#f8f9fb;display:flex;flex-direction:column;height:100vh;}
+    header{background:#fff;padding:15px;text-align:center;font-weight:bold;font-size:20px;box-shadow:0 2px 4px rgba(0,0,0,0.1);}
+    .stats{display:flex;justify-content:space-around;margin:15px;}
+    .card{flex:1;margin:5px;background:linear-gradient(135deg,#0072ff,#00c6ff);color:#fff;border-radius:15px;padding:20px;text-align:center;}
+    .card h2{margin:5px 0;font-size:22px;}
+    .wheel-container{background:#fff;margin:15px;border-radius:15px;padding:15px;box-shadow:0 3px 6px rgba(0,0,0,0.1);text-align:center;position:relative;display:flex;justify-content:center;align-items:center;flex-direction:column;}
+    #wheel{width:280px;height:280px;border-radius:50%;border:5px solid #ddd;}
+    #pointer{position:absolute;width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-top:25px solid red;top:calc(50% - 140px);left:calc(50% - 15px);z-index:10;}
+    #spinBtn{margin-top:20px;width:90%;padding:15px;border:none;border-radius:30px;font-size:18px;font-weight:bold;background:linear-gradient(to right,#ffcc00,#0072ff);color:#fff;cursor:pointer;transition:0.3s;}
+    #spinBtn:hover{opacity:0.9;}
+    nav{background:#fff;display:flex;justify-content:space-around;padding:10px;position:fixed;bottom:0;width:100%;border-top:1px solid #ddd;}
+    nav a{text-align:center;font-size:12px;color:#444;text-decoration:none;display:flex;flex-direction:column;align-items:center;}
+    nav a.active{color:#0072ff;font-weight:bold;}
+    .popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;z-index:999;}
+    .popup-content{background:#fff;border-radius:20px;padding:25px;text-align:center;width:85%;max-width:320px;box-shadow:0 5px 25px rgba(0,0,0,0.15);animation:pop 0.4s ease;}
+    @keyframes pop{from{transform:scale(0.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+    .popup-content h2{color:#0072ff;font-size:22px;margin-bottom:10px;}
+    .trophy{font-size:40px;color:#ffb300;margin-bottom:10px;}
+    .popup-content p{color:#555;margin:5px 0;}
+    .highlight{color:#ffb300;font-weight:bold;}
+    .popup-content button{margin-top:15px;background:linear-gradient(to right,#ffcc00,#0072ff);color:#fff;border:none;padding:12px 25px;border-radius:30px;font-size:16px;font-weight:bold;cursor:pointer;}
   </style>
 </head>
 <body>
@@ -184,7 +49,6 @@
     <button id="spinBtn">🔄 SPIN NOW</button>
   </div>
 
-  <!-- 🎉 POPUP -->
   <div class="popup" id="popup">
     <div class="popup-content">
       <div class="trophy">🏆</div>
@@ -201,7 +65,6 @@
     <a href="prbe.html">👤<br>Profile</a>
   </nav>
 
-  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -231,8 +94,7 @@
 
     const options = [10, 25, 50, 100, 20, 0];
     const arcSize = (2 * Math.PI) / options.length;
-    let angle = 0;
-    let spinning = false;
+    let angle = 0, spinning = false;
 
     let userId = null;
     let userData = { points: 0, spinsToday: 0, lastSpinDate: "" };
@@ -300,10 +162,18 @@
 
     spinBtn.addEventListener("click", () => {
       if (spinning) return;
-      if (userData.spinsToday >= 5) {
-        alert("❌ Daily limit reached!");
+
+      // 🧩 Minimum ₹10 (10000 points) required to spin
+      if (userData.points < 10000) {
+        alert("⚠️ Minimum ₹10 balance required to spin!");
         return;
       }
+
+      if (userData.spinsToday >= 5) {
+        alert("❌ Daily 5 spin limit reached!");
+        return;
+      }
+
       spinning = true;
       const spinAngle = Math.random() * 360 + 1800;
       const duration = 4000;
@@ -334,7 +204,6 @@
           saveUserData();
           spinning = false;
 
-          // 🎉 Show popup
           popupPoints.textContent = selected;
           popup.style.display = "flex";
         }
