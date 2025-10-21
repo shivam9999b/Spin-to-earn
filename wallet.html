@@ -74,7 +74,6 @@ footer nav{display:flex;justify-content:space-around;padding:10px 0;}
       </div>
 
       <div class="amount-grid">
-        <!-- updated data-points for 1000pts = ₹5 (1₹ = 200 pts) -->
         <button class="amount-btn" data-points="4000" data-rupees="20">₹20</button>
         <button class="amount-btn" data-points="10000" data-rupees="50">₹50</button>
         <button class="amount-btn" data-points="20000" data-rupees="100">₹100</button>
@@ -117,97 +116,91 @@ footer nav{display:flex;justify-content:space-around;padding:10px 0;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig={
-  apiKey:"AIzaSyDllI-7XaSEX9Akcjz3hzH3eWtC_xOo0vE",
-  authDomain:"spin-to-earn-ba587.firebaseapp.com",
-  projectId:"spin-to-earn-ba587",
-  storageBucket:"spin-to-earn-ba587.firebasestorage.app",
-  messagingSenderId:"508392305853",
-  appId:"1:508392305853:web:404509d298fc8ee25e73d4"
+const firebaseConfig = {
+  apiKey: "AIzaSyDllI-7XaSEX9Akcjz3hzH3eWtC_xOo0vE",
+  authDomain: "spin-to-earn-ba587.firebaseapp.com",
+  projectId: "spin-to-earn-ba587",
+  storageBucket: "spin-to-earn-ba587.firebasestorage.app",
+  messagingSenderId: "508392305853",
+  appId: "1:508392305853:web:404509d298fc8ee25e73d4"
 };
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getFirestore(app);
 
-let userId=null;
-let userData={points:0};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-// 1000 points = ₹5 => 1 rupee = 200 points
-const POINTS_PER_RUPEE = 200;
+let userId = null;
+let userData = { points: 0 };
 
-async function loginGoogle(){await signInWithPopup(auth,new GoogleAuthProvider());}
-onAuthStateChanged(auth,async(user)=>{
+async function loginGoogle(){ await signInWithPopup(auth,new GoogleAuthProvider()); }
+
+onAuthStateChanged(auth, async(user)=>{
   if(user){
     userId=user.uid;
     const ref=doc(db,"users",userId);
     const snap=await getDoc(ref);
     userData=snap.exists()?snap.data():{points:0};
     await setDoc(ref,userData,{merge:true});
-    updateUI();listenTransactions();
-  }else loginGoogle();
+    updateUI();
+    listenTransactions();
+  } else loginGoogle();
 });
 
 function updateUI(){
-  document.getElementById("walletPoints").innerText=userData.points+" points";
-  // convert points -> rupees: rupees = points / POINTS_PER_RUPEE
-  document.getElementById("walletAmount").innerText="₹"+(userData.points/POINTS_PER_RUPEE).toFixed(2);
+  document.getElementById("walletPoints").innerText = userData.points + " points";
+  document.getElementById("walletAmount").innerText = "₹" + ((userData.points / 1000) * 5).toFixed(2);
 }
 
-// ✅ Add Money Button
-document.getElementById("addMoneyBtn").addEventListener("click",async()=>{
-  const amount=parseFloat(document.getElementById("addAmount").value);
-  if(!amount||amount<10) return alert("Minimum add amount ₹10");
-  // points per rupee = 200
-  const addPoints = Math.round(amount * POINTS_PER_RUPEE);
-  userData.points = (userData.points || 0) + addPoints;
+// ✅ Add Money Button (Fixed Conversion + Reload)
+document.getElementById("addMoneyBtn").addEventListener("click", async ()=>{
+  const amount = parseFloat(document.getElementById("addAmount").value);
+  if(!amount || amount < 10) return alert("Minimum add amount ₹10");
+  const addPoints = (amount / 5) * 1000; // ₹5 = 1000 points
+  userData.points += addPoints;
   await updateDoc(doc(db,"users",userId),{points:userData.points});
   await addDoc(collection(db,"users",userId,"withdrawals"),{
-    points:addPoints,
-    amount:amount,
-    upi:"Wallet Recharge",
-    status:"COMPLETED",
-    date:new Date()
+    points:addPoints, amount:amount, upi:"Wallet Recharge", status:"COMPLETED", date:new Date()
   });
   alert(`₹${amount} added successfully!`);
-  document.getElementById("addAmount").value="";
-  updateUI();
+  location.reload(); // 👈 auto refresh to sync with spin
 });
 
 // ✅ Withdraw Money
-let selectedPoints=0;
+let selectedPoints = 0;
 document.querySelectorAll(".amount-btn").forEach(btn=>{
   btn.addEventListener("click",()=>{
     document.querySelectorAll(".amount-btn").forEach(b=>b.classList.remove("selected"));
     btn.classList.add("selected");
-    selectedPoints=parseInt(btn.dataset.points,10);
+    selectedPoints=parseInt(btn.dataset.points);
     document.getElementById("customAmount").value="";
   });
 });
+
 document.getElementById("customAmount").addEventListener("input",e=>{
   document.querySelectorAll(".amount-btn").forEach(b=>b.classList.remove("selected"));
   const custom=parseFloat(e.target.value)||0;
-  selectedPoints = Math.round(custom * POINTS_PER_RUPEE);
+  selectedPoints=(custom/5)*1000; // ₹5 = 1000 points
 });
-document.querySelector(".withdraw-now-btn").addEventListener("click",async()=>{
+
+document.querySelector(".withdraw-now-btn").addEventListener("click", async ()=>{
   const upi=document.getElementById("upiId").value.trim();
-  // rupees = points / POINTS_PER_RUPEE
-  const rupees = selectedPoints / POINTS_PER_RUPEE;
-  if(!upi) return alert("Enter UPI ID");
-  if(selectedPoints<=0) return alert("Select or enter amount");
-  if(rupees < 20) return alert("Minimum withdrawal ₹20");
-  if((userData.points||0) < selectedPoints) return alert("Insufficient points");
-  userData.points -= selectedPoints;
+  const rupees=(selectedPoints/1000)*5;
+  if(!upi)return alert("Enter UPI ID");
+  if(selectedPoints<=0)return alert("Select or enter amount");
+  if(rupees<20)return alert("Minimum withdrawal ₹20");
+  if(userData.points<selectedPoints)return alert("Insufficient points");
+  userData.points-=selectedPoints;
   await updateDoc(doc(db,"users",userId),{points:userData.points});
   await addDoc(collection(db,"users",userId,"withdrawals"),{
-    points:selectedPoints, amount:rupees, upi:upi, status:"PENDING", date:new Date()
+    points:selectedPoints,amount:rupees,upi:upi,status:"PENDING",date:new Date()
   });
   alert("Withdrawal Requested!");
   updateUI();
 });
 
-// ✅ Transaction List
+// ✅ Transaction List + Popup
 function listenTransactions(){
   const q=query(collection(db,"users",userId,"withdrawals"),orderBy("date","desc"));
   onSnapshot(q,snap=>{
@@ -229,7 +222,6 @@ function listenTransactions(){
   });
 }
 
-// ✅ Popup Details
 function showDetailsPopup(d){
   const popup=document.getElementById("detailsPopup");
   const body=document.getElementById("detailsBody");
@@ -244,5 +236,4 @@ function showDetailsPopup(d){
 document.querySelector("#detailsPopup .close-btn").addEventListener("click",()=>{document.getElementById("detailsPopup").style.display="none";});
 </script>
 </body>
-    </html>
-  
+</html>
