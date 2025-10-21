@@ -74,9 +74,10 @@ footer nav{display:flex;justify-content:space-around;padding:10px 0;}
       </div>
 
       <div class="amount-grid">
-        <button class="amount-btn" data-points="20000" data-rupees="20">₹20</button>
-        <button class="amount-btn" data-points="50000" data-rupees="50">₹50</button>
-        <button class="amount-btn" data-points="100000" data-rupees="100">₹100</button>
+        <!-- updated data-points for 1000pts = ₹5 (1₹ = 200 pts) -->
+        <button class="amount-btn" data-points="4000" data-rupees="20">₹20</button>
+        <button class="amount-btn" data-points="10000" data-rupees="50">₹50</button>
+        <button class="amount-btn" data-points="20000" data-rupees="100">₹100</button>
         <div class="custom-input">
           <input type="number" id="customAmount" placeholder="Custom ₹" min="1">
         </div>
@@ -133,6 +134,9 @@ const db=getFirestore(app);
 let userId=null;
 let userData={points:0};
 
+// 1000 points = ₹5 => 1 rupee = 200 points
+const POINTS_PER_RUPEE = 200;
+
 async function loginGoogle(){await signInWithPopup(auth,new GoogleAuthProvider());}
 onAuthStateChanged(auth,async(user)=>{
   if(user){
@@ -147,15 +151,17 @@ onAuthStateChanged(auth,async(user)=>{
 
 function updateUI(){
   document.getElementById("walletPoints").innerText=userData.points+" points";
-  document.getElementById("walletAmount").innerText="₹"+(userData.points/1000).toFixed(2);
+  // convert points -> rupees: rupees = points / POINTS_PER_RUPEE
+  document.getElementById("walletAmount").innerText="₹"+(userData.points/POINTS_PER_RUPEE).toFixed(2);
 }
 
 // ✅ Add Money Button
 document.getElementById("addMoneyBtn").addEventListener("click",async()=>{
   const amount=parseFloat(document.getElementById("addAmount").value);
-  if(!amount||amount<10)return alert("Minimum add amount ₹10");
-  const addPoints=amount*1000;
-  userData.points+=addPoints;
+  if(!amount||amount<10) return alert("Minimum add amount ₹10");
+  // points per rupee = 200
+  const addPoints = Math.round(amount * POINTS_PER_RUPEE);
+  userData.points = (userData.points || 0) + addPoints;
   await updateDoc(doc(db,"users",userId),{points:userData.points});
   await addDoc(collection(db,"users",userId,"withdrawals"),{
     points:addPoints,
@@ -175,26 +181,27 @@ document.querySelectorAll(".amount-btn").forEach(btn=>{
   btn.addEventListener("click",()=>{
     document.querySelectorAll(".amount-btn").forEach(b=>b.classList.remove("selected"));
     btn.classList.add("selected");
-    selectedPoints=parseInt(btn.dataset.points);
+    selectedPoints=parseInt(btn.dataset.points,10);
     document.getElementById("customAmount").value="";
   });
 });
 document.getElementById("customAmount").addEventListener("input",e=>{
   document.querySelectorAll(".amount-btn").forEach(b=>b.classList.remove("selected"));
   const custom=parseFloat(e.target.value)||0;
-  selectedPoints=custom*1000;
+  selectedPoints = Math.round(custom * POINTS_PER_RUPEE);
 });
 document.querySelector(".withdraw-now-btn").addEventListener("click",async()=>{
   const upi=document.getElementById("upiId").value.trim();
-  const rupees=selectedPoints/1000;
-  if(!upi)return alert("Enter UPI ID");
-  if(selectedPoints<=0)return alert("Select or enter amount");
-  if(rupees<20)return alert("Minimum withdrawal ₹20");
-  if(userData.points<selectedPoints)return alert("Insufficient points");
-  userData.points-=selectedPoints;
+  // rupees = points / POINTS_PER_RUPEE
+  const rupees = selectedPoints / POINTS_PER_RUPEE;
+  if(!upi) return alert("Enter UPI ID");
+  if(selectedPoints<=0) return alert("Select or enter amount");
+  if(rupees < 20) return alert("Minimum withdrawal ₹20");
+  if((userData.points||0) < selectedPoints) return alert("Insufficient points");
+  userData.points -= selectedPoints;
   await updateDoc(doc(db,"users",userId),{points:userData.points});
   await addDoc(collection(db,"users",userId,"withdrawals"),{
-    points:selectedPoints,amount:rupees,upi:upi,status:"PENDING",date:new Date()
+    points:selectedPoints, amount:rupees, upi:upi, status:"PENDING", date:new Date()
   });
   alert("Withdrawal Requested!");
   updateUI();
@@ -237,4 +244,5 @@ function showDetailsPopup(d){
 document.querySelector("#detailsPopup .close-btn").addEventListener("click",()=>{document.getElementById("detailsPopup").style.display="none";});
 </script>
 </body>
-</html>
+    </html>
+  
