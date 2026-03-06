@@ -8,30 +8,25 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;overflow-x:hidden;}
-body{font-family:'Roboto',sans-serif;background-color:#e0e0e0;display:flex;justify-content:center;align-items:center;min-height:100vh;color:#333;}
-.phone-screen{width:100%;height:100vh;max-width:480px;background-color:#f4f5f9;display:flex;flex-direction:column;}
+body{font-family:'Roboto',sans-serif;background:#e0e0e0;display:flex;justify-content:center;align-items:center;}
+.phone-screen{width:100%;max-width:480px;height:100vh;background:#f4f5f9;display:flex;flex-direction:column;}
 header{text-align:center;padding:15px;background:#fff;border-bottom:1px solid #eee;}
-header h1{font-size:1.3rem;}
 main{flex:1;overflow-y:auto;padding:15px;display:flex;flex-direction:column;gap:20px;}
 .balance-card{background:#03A9F4;color:#fff;padding:20px;border-radius:12px;}
 .balance-card h2{font-size:2.5rem;margin:5px 0;}
-.balance-card .conversion-rate{background-color:rgba(255,255,255,0.2);padding:5px 10px;border-radius:20px;font-size:0.8rem;margin-top:10px;display:inline-flex;align-items:center;gap:5px;}
-.withdrawal-section, .addmoney-section{background:#fff;padding:15px;border-radius:12px;}
+.withdrawal-section,.addmoney-section{background:#fff;padding:15px;border-radius:12px;}
 .upi-input{position:relative;margin-bottom:20px;}
 .upi-input i{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#03A9F4;}
-.upi-input input{width:100%;padding:12px 12px 12px 40px;border:1px solid #e0e0e0;border-radius:8px;font-size:0.9rem;background:#f9f9f9;}
+.upi-input input{width:100%;padding:12px 12px 12px 40px;border:1px solid #e0e0e0;border-radius:8px;background:#f9f9f9;}
 .amount-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
 .amount-btn{background:#f4f5f9;border:1px solid #e0e0e0;border-radius:8px;padding:10px;cursor:pointer;text-align:center;}
 .amount-btn.selected{background:#e3f2fd;border-color:#03A9F4;}
-.custom-input{display:flex;align-items:center;gap:10px;}
+.custom-input{display:flex;gap:10px;}
 .custom-input input{flex:1;padding:10px;border:1px solid #e0e0e0;border-radius:8px;text-align:center;}
-.action-btn{width:100%;padding:15px;background:#03A9F4;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;margin-top:10px;display:flex;justify-content:center;align-items:center;gap:8px;}
-.download-row{display:flex;justify-content:center;margin-top:10px;}
-.download-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;cursor:pointer;font-weight:600;color:#333;}
-.download-btn i{color:#03A9F4;}
+.action-btn{width:100%;padding:15px;background:#03A9F4;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;margin-top:10px;}
 .history-section{background:#fff;padding:15px;border-radius:12px;}
-.history-item{display:flex;align-items:center;gap:15px;padding:10px 0;border-bottom:1px solid #eee;cursor:pointer;}
-.status{font-size:0.75rem;padding:3px 8px;border-radius:10px;font-weight:500;}
+.history-item{display:flex;gap:15px;padding:10px 0;border-bottom:1px solid #eee;cursor:pointer;}
+.status{font-size:0.75rem;padding:3px 8px;border-radius:10px;}
 .status.pending{background:#fff8e1;color:#fbc02d;}
 .status.completed{background:#e8f5e9;color:#2e7d32;}
 .status.failed{background:#ffebee;color:#c62828;}
@@ -39,201 +34,265 @@ footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px sol
 footer nav{display:flex;justify-content:space-around;padding:10px 0;}
 .nav-item{display:flex;flex-direction:column;align-items:center;color:#999;text-decoration:none;}
 .nav-item.active{color:#03A9F4;}
-#detailsPopup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;z-index:9999;}
-#detailsPopup .popup-content{background:#fff;width:90%;max-width:350px;border-radius:12px;padding:20px;text-align:left;position:relative;}
-#detailsPopup .popup-content h3{text-align:center;margin-bottom:15px;}
-#detailsPopup .popup-content p{margin:6px 0;font-size:0.9rem;}
-#detailsPopup .close-btn{position:absolute;top:10px;right:10px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:#333;}
+#detailsPopup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;}
+#detailsPopup .popup-content{background:#fff;width:90%;max-width:350px;border-radius:12px;padding:20px;position:relative;}
+.close-btn{position:absolute;top:10px;right:10px;border:none;background:none;font-size:18px;cursor:pointer;}
 </style>
 </head>
+
 <body>
+
 <div class="phone-screen">
-  <header><h1>Wallet</h1></header>
-  <main>
-    <section class="balance-card">
-      <h2 id="walletAmount">₹0.00</h2>
-      <p id="walletPoints">0 points</p>
-      <div class="conversion-rate"><i class="fa-solid fa-circle-info"></i>1000 points = ₹5</div>
-    </section>
 
-    <!-- ✅ Add Money Section -->
-    <section class="addmoney-section">
-      <h3><i class="fa-solid fa-plus-circle"></i> Add Money</h3>
-      <div class="custom-input">
-        <input type="number" id="addAmount" placeholder="Enter Amount ₹" min="10">
-      </div>
-      <button class="action-btn" id="addMoneyBtn"><i class="fa-solid fa-money-bill-wave"></i> Add Money</button>
-      <p style="font-size:0.8rem;color:#777;margin-top:5px;">Minimum add money: ₹10</p>
-    </section>
+<header>
+<h1>Wallet</h1>
+</header>
 
-    <!-- ✅ Withdrawal Section -->
-    <section class="withdrawal-section">
-      <div class="upi-input">
-        <i class="fa-solid fa-credit-card"></i>
-        <input type="text" id="upiId" placeholder="Enter UPI ID">
-      </div>
+<main>
 
-      <div class="amount-grid">
-        <button class="amount-btn" data-points="4000" data-rupees="20">₹20</button>
-        <button class="amount-btn" data-points="10000" data-rupees="50">₹50</button>
-        <button class="amount-btn" data-points="20000" data-rupees="100">₹100</button>
-        <div class="custom-input">
-          <input type="number" id="customAmount" placeholder="Custom ₹" min="1">
-        </div>
-      </div>
+<section class="balance-card">
+<h2 id="walletAmount">₹0.00</h2>
+<p id="walletPoints">0 points</p>
+<p>1000 points = ₹5</p>
+</section>
 
-      <button class="action-btn withdraw-now-btn"><i class="fa-solid fa-arrow-up-from-bracket"></i> Withdraw Now</button>
+<section class="addmoney-section">
+<h3>Add Money</h3>
+<div class="custom-input">
+<input type="number" id="addAmount" placeholder="Enter Amount ₹">
+</div>
+<button class="action-btn" id="addMoneyBtn">Add Money</button>
+</section>
 
-      <div class="download-row">
-        <button id="downloadTxBtn" class="download-btn"><i class="fa-solid fa-file-arrow-down"></i>Download Transactions</button>
-      </div>
-    </section>
+<section class="withdrawal-section">
 
-    <section class="history-section">
-      <h2><i class="fa-solid fa-clock-rotate-left"></i> Transaction History</h2>
-      <div id="historyList"></div>
-    </section>
-  </main>
-
-  <footer>
-    <nav>
-      <a href="spin.html" class="nav-item"><i class="fa-solid fa-sync"></i><span>Spin</span></a>
-      <a href="wallet.html" class="nav-item active"><i class="fa-solid fa-wallet"></i><span>Wallet</span></a>
-      <a href="prbe.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Profile</span></a>
-    </nav>
-  </footer>
+<div class="upi-input">
+<i class="fa-solid fa-credit-card"></i>
+<input type="text" id="upiId" placeholder="Enter UPI ID">
 </div>
 
-<!-- ✅ Details Popup -->
+<div class="amount-grid">
+<button class="amount-btn" data-points="4000">₹20</button>
+<button class="amount-btn" data-points="10000">₹50</button>
+<button class="amount-btn" data-points="20000">₹100</button>
+
+<div class="custom-input">
+<input type="number" id="customAmount" placeholder="Custom ₹">
+</div>
+</div>
+
+<button class="action-btn withdraw-now-btn">Withdraw Now</button>
+
+</section>
+
+<section class="history-section">
+<h3>Transaction History</h3>
+<div id="historyList"></div>
+</section>
+
+</main>
+
+<footer>
+<nav>
+<a href="spin.html" class="nav-item">Spin</a>
+<a href="wallet.html" class="nav-item active">Wallet</a>
+<a href="prbe.html" class="nav-item">Profile</a>
+</nav>
+</footer>
+
+</div>
+
 <div id="detailsPopup">
-  <div class="popup-content">
-    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
-    <h3>Transaction Details</h3>
-    <div id="detailsBody"></div>
-  </div>
+<div class="popup-content">
+<button class="close-btn">✖</button>
+<h3>Transaction Details</h3>
+<div id="detailsBody"></div>
+</div>
 </div>
 
 <script type="module">
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDllI-7XaSEX9Akcjz3hzH3eWtC_xOo0vE",
-  authDomain: "spin-to-earn-ba587.firebaseapp.com",
-  projectId: "spin-to-earn-ba587",
-  storageBucket: "spin-to-earn-ba587.firebasestorage.app",
-  messagingSenderId: "508392305853",
-  appId: "1:508392305853:web:404509d298fc8ee25e73d4"
+apiKey:"AIzaSyDllI",
+authDomain:"spin-to-earn-ba587.firebaseapp.com",
+projectId:"spin-to-earn-ba587",
+storageBucket:"spin-to-earn-ba587.appspot.com",
+messagingSenderId:"508392305853",
+appId:"1:508392305853:web:404509d298fc8ee25e73d4"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let userId = null;
-let userData = { points: 0 };
+let userId=null;
+let userData={points:0};
 
-async function loginGoogle(){ await signInWithPopup(auth,new GoogleAuthProvider()); }
+async function loginGoogle(){
+await signInWithPopup(auth,new GoogleAuthProvider());
+}
 
-onAuthStateChanged(auth, async(user)=>{
-  if(user){
-    userId=user.uid;
-    const ref=doc(db,"users",userId);
-    const snap=await getDoc(ref);
-    userData=snap.exists()?snap.data():{points:0};
-    await setDoc(ref,userData,{merge:true});
-    updateUI();
-    listenTransactions();
-  } else loginGoogle();
+onAuthStateChanged(auth,async(user)=>{
+
+if(user){
+
+userId=user.uid;
+
+const ref=doc(db,"users",userId);
+const snap=await getDoc(ref);
+
+if(snap.exists()){
+userData=snap.data();
+}else{
+await setDoc(ref,{points:0});
+}
+
+updateUI();
+listenTransactions();
+
+}else{
+loginGoogle();
+}
+
 });
 
 function updateUI(){
-  document.getElementById("walletPoints").innerText = userData.points + " points";
-  document.getElementById("walletAmount").innerText = "₹" + ((userData.points / 1000) * 5).toFixed(2);
+
+document.getElementById("walletPoints").innerText=userData.points+" points";
+
+document.getElementById("walletAmount").innerText="₹"+((userData.points/1000)*5).toFixed(2);
+
 }
 
-// ✅ Add Money Button (Fixed Conversion + Reload)
-document.getElementById("addMoneyBtn").addEventListener("click", async ()=>{
-  const amount = parseFloat(document.getElementById("addAmount").value);
-  if(!amount || amount < 10) return alert("Minimum add amount ₹10");
-  const addPoints = (amount / 5) * 1000; // ₹5 = 1000 points
-  userData.points += addPoints;
-  await updateDoc(doc(db,"users",userId),{points:userData.points});
-  await addDoc(collection(db,"users",userId,"withdrawals"),{
-    points:addPoints, amount:amount, upi:"Wallet Recharge", status:"COMPLETED", date:new Date()
-  });
-  alert(`₹${amount} added successfully!`);
-  location.reload(); // 👈 auto refresh to sync with spin
+document.getElementById("addMoneyBtn").onclick=async()=>{
+
+const amount=parseFloat(document.getElementById("addAmount").value);
+
+if(!amount||amount<10){
+alert("Minimum add ₹10");
+return;
+}
+
+const addPoints=(amount/5)*1000;
+
+userData.points+=addPoints;
+
+await setDoc(doc(db,"users",userId),{points:userData.points},{merge:true});
+
+await addDoc(collection(db,"users",userId,"withdrawals"),{
+
+amount:amount,
+points:addPoints,
+upi:"Wallet Recharge",
+status:"COMPLETED",
+date:new Date()
+
 });
 
-// ✅ Withdraw Money
-let selectedPoints = 0;
+alert("Money Added Successfully");
+
+updateUI();
+
+};
+
+let selectedPoints=0;
+
 document.querySelectorAll(".amount-btn").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".amount-btn").forEach(b=>b.classList.remove("selected"));
-    btn.classList.add("selected");
-    selectedPoints=parseInt(btn.dataset.points);
-    document.getElementById("customAmount").value="";
-  });
+
+btn.onclick=()=>{
+
+document.querySelectorAll(".amount-btn").forEach(b=>b.classList.remove("selected"));
+
+btn.classList.add("selected");
+
+selectedPoints=parseInt(btn.dataset.points);
+
+};
+
 });
 
-document.getElementById("customAmount").addEventListener("input",e=>{
-  document.querySelectorAll(".amount-btn").forEach(b=>b.classList.remove("selected"));
-  const custom=parseFloat(e.target.value)||0;
-  selectedPoints=(custom/5)*1000; // ₹5 = 1000 points
+document.getElementById("customAmount").oninput=(e)=>{
+
+const custom=parseFloat(e.target.value)||0;
+
+selectedPoints=(custom/5)*1000;
+
+};
+
+document.querySelector(".withdraw-now-btn").onclick=async()=>{
+
+const upi=document.getElementById("upiId").value.trim();
+
+const rupees=(selectedPoints/1000)*5;
+
+if(!upi){
+alert("Enter UPI ID");
+return;
+}
+
+if(rupees<20){
+alert("Minimum withdraw ₹20");
+return;
+}
+
+if(userData.points<selectedPoints){
+alert("Insufficient Balance");
+return;
+}
+
+userData.points-=selectedPoints;
+
+await updateDoc(doc(db,"users",userId),{points:userData.points});
+
+await addDoc(collection(db,"users",userId,"withdrawals"),{
+
+amount:rupees,
+points:selectedPoints,
+upi:upi,
+status:"PENDING",
+date:new Date()
+
 });
 
-document.querySelector(".withdraw-now-btn").addEventListener("click", async ()=>{
-  const upi=document.getElementById("upiId").value.trim();
-  const rupees=(selectedPoints/1000)*5;
-  if(!upi)return alert("Enter UPI ID");
-  if(selectedPoints<=0)return alert("Select or enter amount");
-  if(rupees<20)return alert("Minimum withdrawal ₹20");
-  if(userData.points<selectedPoints)return alert("Insufficient points");
-  userData.points-=selectedPoints;
-  await updateDoc(doc(db,"users",userId),{points:userData.points});
-  await addDoc(collection(db,"users",userId,"withdrawals"),{
-    points:selectedPoints,amount:rupees,upi:upi,status:"PENDING",date:new Date()
-  });
-  alert("Withdrawal Requested!");
-  updateUI();
-});
+alert("Withdrawal Requested");
 
-// ✅ Transaction List + Popup
+updateUI();
+
+};
+
 function listenTransactions(){
-  const q=query(collection(db,"users",userId,"withdrawals"),orderBy("date","desc"));
-  onSnapshot(q,snap=>{
-    const list=document.getElementById("historyList");
-    list.innerHTML="";
-    snap.forEach(docSnap=>{
-      const d=docSnap.data();
-      const date=d.date?.toDate?d.date.toDate():new Date(d.date);
-      const icon=d.status==="COMPLETED"?"fa-wallet":(d.status==="FAILED"?"fa-triangle-exclamation":"fa-clock");
-      const color=d.status==="COMPLETED"?"#2e7d32":(d.status==="FAILED"?"#c62828":"#fbc02d");
-      const item=document.createElement("div");
-      item.classList.add("history-item");
-      item.innerHTML=`<i class="fa-solid ${icon}" style="color:${color};font-size:1.2rem;"></i>
-      <div><h4>₹${d.amount} <span class="status ${d.status.toLowerCase()}">${d.status}</span></h4>
-      <p>To: ${d.upi}</p><small>${date.toLocaleString()}</small></div>`;
-      item.addEventListener("click",()=>showDetailsPopup(d));
-      list.appendChild(item);
-    });
-  });
+
+const q=query(collection(db,"users",userId,"withdrawals"),orderBy("date","desc"));
+
+onSnapshot(q,(snap)=>{
+
+const list=document.getElementById("historyList");
+
+list.innerHTML="";
+
+snap.forEach(d=>{
+
+const data=d.data();
+
+const item=document.createElement("div");
+
+item.className="history-item";
+
+item.innerHTML=`₹${data.amount} - ${data.status}`;
+
+list.appendChild(item);
+
+});
+
+});
+
 }
 
-function showDetailsPopup(d){
-  const popup=document.getElementById("detailsPopup");
-  const body=document.getElementById("detailsBody");
-  const date=d.date?.toDate?d.date.toDate():new Date(d.date);
-  body.innerHTML=`<p><strong>Amount:</strong> ₹${d.amount}</p>
-  <p><strong>Points:</strong> ${d.points}</p>
-  <p><strong>UPI:</strong> ${d.upi}</p>
-  <p><strong>Status:</strong> ${d.status}</p>
-  <p><strong>Date:</strong> ${date.toLocaleString()}</p>`;
-  popup.style.display="flex";
-}
-document.querySelector("#detailsPopup .close-btn").addEventListener("click",()=>{document.getElementById("detailsPopup").style.display="none";});
 </script>
+
 </body>
-</html>
+  </html>
